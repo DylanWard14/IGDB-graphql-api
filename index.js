@@ -32,21 +32,28 @@ const typeDefs = gql`
   }
 `;
 
+const developers = [
+  { id: "bungie", name: "Bungie" },
+  { id: "infinity_ward", name: "Infinity Ward" },
+];
+
 const games = [
   {
-    id: "asdf",
+    id: "cod",
     title: "Call of Duty",
     releaseDate: new Date("04-11-2020"),
     rating: 5,
+    developer: {
+      id: "infinity_ward",
+    },
   },
   {
-    id: "asdfaasdf",
+    id: "destiny",
     title: "Destiny",
     releaseDate: new Date("04-11-2020"),
     rating: 5,
     developer: {
-      id: "asdfaqw",
-      name: "Bungie",
+      id: "bungie",
     },
   },
 ];
@@ -60,6 +67,10 @@ const resolvers = {
       const foundGame = games.find((game) => game.id === id);
       return foundGame;
     },
+  },
+  Game: {
+    developer: (obj, args, context) =>
+      developers.find((developer) => developer.id === obj.developer.id),
   },
   Date: new GraphQLScalarType({
     name: "Date",
