@@ -30,6 +30,23 @@ const typeDefs = gql`
     games: [Game]
     game(id: ID): Game
   }
+
+  input DeveloperInput {
+    id: ID
+  }
+
+  input GameInput {
+    id: ID
+    title: String
+    releaseDate: Date
+    rating: Int
+    status: Status
+    developer: DeveloperInput
+  }
+
+  type Mutation {
+    addGame(game: GameInput): [Game]
+  }
 `;
 
 const developers = [
@@ -72,6 +89,18 @@ const resolvers = {
     developer: (obj, args, context) =>
       developers.find((developer) => developer.id === obj.developer.id),
   },
+  Mutation: {
+    addGame: (obj, { game }, context) => {
+      const newGamesList = [
+        ...games,
+        // new game data
+        game,
+      ];
+
+      return newGamesList;
+    },
+  },
+
   Date: new GraphQLScalarType({
     name: "Date",
     description: "it's a date",
