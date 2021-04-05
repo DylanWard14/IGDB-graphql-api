@@ -1,7 +1,31 @@
 const { ApolloServer, gql } = require("apollo-server");
 const { GraphQLScalarType } = require("graphql");
 const { Kind } = require("graphql/language");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 
+dotenv.config();
+
+mongoose.connect(
+  `mongodb+srv://${process.env.MONGODB_LOGIN}:${process.env.MONGODB_PASSWORD}@cluster0.pa2ux.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
+const db = mongoose.connection;
+
+const gameSchema = new mongoose.Schema({
+  title: String,
+  releaseDate: Date,
+  rating: Number,
+  developerId: String,
+  status: String,
+});
+
+const Game = mongoose.model("Game", gameSchema);
+
+// gql`` parses your string into an AST
 const typeDefs = gql`
   scalar Date
 
@@ -77,12 +101,21 @@ const games = [
 
 const resolvers = {
   Query: {
-    games: () => {
-      return games;
+    games: async () => {
+      try {
+        return await Game.find();
+      } catch (e) {
+        console.log("error: ", e);
+        return [];
+      }
     },
-    game: (obj, { id }, context, info) => {
-      const foundGame = games.find((game) => game.id === id);
-      return foundGame;
+    game: async (obj, { id }) => {
+      try {
+        return await Game.findById(id);
+      } catch (e) {
+        console.log("error: ", e);
+        return {};
+      }
     },
   },
   Game: {
@@ -90,14 +123,17 @@ const resolvers = {
       developers.find((developer) => developer.id === obj.developer.id),
   },
   Mutation: {
-    addGame: (obj, { game }, context) => {
-      const newGamesList = [
-        ...games,
-        // new game data
-        game,
-      ];
+    addGame: async (obj, { game }, context) => {
+      try {
+        await Game.create({
+          ...game,
+        });
 
-      return newGamesList;
+        return await Game.find();
+      } catch (e) {
+        console.log("error: ", e);
+        return [];
+      }
     },
   },
 
@@ -121,13 +157,19 @@ const resolvers = {
   }),
 };
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  introspection: true,
-  playground: true,
-});
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+  // we're connected!
+  console.log("Database connected!");
 
-server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
-  console.log(`Server started at ${url}`);
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    introspection: true,
+    playground: true,
+  });
+
+  server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
+    console.log(`Server started at ${url}`);
+  });
 });
