@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require("apollo-server");
+const { ApolloServer, gql, PubSub } = require("apollo-server");
 const { GraphQLScalarType } = require("graphql");
 const { Kind } = require("graphql/language");
 const mongoose = require("mongoose");
@@ -25,7 +25,7 @@ const gameSchema = new mongoose.Schema({
 
 const Game = mongoose.model("Game", gameSchema);
 
-// gql`` parses your string into an AST
+// gql`` parses your string into an AST (Abstract Syntax Tree)
 const typeDefs = gql`
   scalar Date
 
@@ -71,35 +71,21 @@ const typeDefs = gql`
   type Mutation {
     addGame(game: GameInput): [Game]
   }
+
+  type Subscription {
+    gameAdded: Game
+  }
 `;
 
-const developers = [
-  { id: "bungie", name: "Bungie" },
-  { id: "infinity_ward", name: "Infinity Ward" },
-];
-
-const games = [
-  {
-    id: "cod",
-    title: "Call of Duty",
-    releaseDate: new Date("04-11-2020"),
-    rating: 5,
-    developer: {
-      id: "infinity_ward",
-    },
-  },
-  {
-    id: "destiny",
-    title: "Destiny",
-    releaseDate: new Date("04-11-2020"),
-    rating: 5,
-    developer: {
-      id: "bungie",
-    },
-  },
-];
+const pubsub = new PubSub();
+const GAME_ADDED = "GAME_ADDED";
 
 const resolvers = {
+  Subscription: {
+    gameAdded: {
+      subscribe: () => pubsub.asyncIterator([GAME_ADDED]),
+    },
+  },
   Query: {
     games: async () => {
       try {
@@ -125,9 +111,10 @@ const resolvers = {
   Mutation: {
     addGame: async (obj, { game }, context) => {
       try {
-        await Game.create({
+        const newGame = await Game.create({
           ...game,
         });
+        pubsub.publish(GAME_ADDED, { gameAdded: newGame });
 
         return await Game.find();
       } catch (e) {
