@@ -37,7 +37,7 @@ export type Query = {
 
 
 export type QueryGameArgs = {
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['Int'];
 };
 
 
@@ -123,6 +123,7 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']>;
   Platform: ResolverTypeWrapper<PlatformModel>;
   Query: ResolverTypeWrapper<{}>;
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 };
 
@@ -133,6 +134,7 @@ export type ResolversParentTypes = {
   String: Scalars['String'];
   Platform: PlatformModel;
   Query: {};
+  Int: Scalars['Int'];
   Boolean: Scalars['Boolean'];
 };
 
@@ -152,7 +154,7 @@ export type PlatformResolvers<ContextType = GraphQLContext, ParentType = Resolve
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType = ResolversParentTypes['Query']> = {
   games?: Resolver<Maybe<Array<Maybe<ResolversTypes['Game']>>>, ParentType, ContextType>;
-  game?: Resolver<Maybe<ResolversTypes['Game']>, ParentType, ContextType, RequireFields<QueryGameArgs, never>>;
+  game?: Resolver<Maybe<ResolversTypes['Game']>, ParentType, ContextType, RequireFields<QueryGameArgs, 'id'>>;
 };
 
 export type Resolvers<ContextType = GraphQLContext> = {

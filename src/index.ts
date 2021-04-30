@@ -21,17 +21,16 @@ const typeDefs = gql`
 
   type Query {
     games: [Game]
-    game(id: ID): Game
+    game(id: Int!): Game
   }
 `;
 
 const resolvers: Resolvers = {
   Query: {
-    games: async (_, __, { dataSources }) => {
-      const response = dataSources.gamesAPI.getGames();
-
-      return response;
-    },
+    games: async (_, __, { dataSources }) =>
+      await dataSources.gamesAPI.getGames(),
+    game: async (_, { id }, { dataSources }) =>
+      await dataSources.gamesAPI.getGameById(id),
   },
   Game: {
     platforms: async (parent, _, { dataSources }) => {

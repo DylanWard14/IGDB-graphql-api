@@ -38,6 +38,15 @@ class GamesAPI extends RESTDataSource {
     return response;
   }
 
+  async getGameById(id: number): Promise<GameModel> {
+    const [game] = await this.post<GameModel[]>(
+      "games/",
+      `fields name, platforms; where id = ${id};`
+    );
+
+    return game;
+  }
+
   async getPlatformById(id: number): Promise<PlatformModel | null> {
     return this.platformsLoader.load(id);
   }
