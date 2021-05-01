@@ -10,3 +10,5 @@ generates:
       mappers:
         Game: ./models#GameModel
         Platform: ./models#PlatformModel
+        Involved_Company: ./models#Involved_CompanyModel
+        Company: ./models#CompanyModel

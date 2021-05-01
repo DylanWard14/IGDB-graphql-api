@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { GameModel, PlatformModel } from './models';
+import { GameModel, PlatformModel, Involved_CompanyModel, CompanyModel } from './models';
 import { GraphQLContext } from './types';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -15,11 +15,30 @@ export type Scalars = {
   Float: number;
 };
 
+export type Company = {
+  __typename?: 'Company';
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  developed?: Maybe<Array<Maybe<Game>>>;
+  published?: Maybe<Array<Maybe<Game>>>;
+};
+
 export type Game = {
   __typename?: 'Game';
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   platforms?: Maybe<Array<Maybe<Platform>>>;
+  involved_companies?: Maybe<Array<Maybe<Involved_Company>>>;
+};
+
+export type Involved_Company = {
+  __typename?: 'Involved_Company';
+  id: Scalars['ID'];
+  developer?: Maybe<Scalars['Boolean']>;
+  publisher?: Maybe<Scalars['Boolean']>;
+  porting?: Maybe<Scalars['Boolean']>;
+  supporting?: Maybe<Scalars['Boolean']>;
+  company?: Maybe<Company>;
 };
 
 export type Platform = {
@@ -33,10 +52,16 @@ export type Query = {
   __typename?: 'Query';
   games?: Maybe<Array<Maybe<Game>>>;
   game?: Maybe<Game>;
+  company?: Maybe<Company>;
 };
 
 
 export type QueryGameArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryCompanyArgs = {
   id: Scalars['Int'];
 };
 
@@ -118,30 +143,53 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  Game: ResolverTypeWrapper<GameModel>;
+  Company: ResolverTypeWrapper<CompanyModel>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   String: ResolverTypeWrapper<Scalars['String']>;
+  Game: ResolverTypeWrapper<GameModel>;
+  Involved_Company: ResolverTypeWrapper<Involved_CompanyModel>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Platform: ResolverTypeWrapper<PlatformModel>;
   Query: ResolverTypeWrapper<{}>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  Game: GameModel;
+  Company: CompanyModel;
   ID: Scalars['ID'];
   String: Scalars['String'];
+  Game: GameModel;
+  Involved_Company: Involved_CompanyModel;
+  Boolean: Scalars['Boolean'];
   Platform: PlatformModel;
   Query: {};
   Int: Scalars['Int'];
-  Boolean: Scalars['Boolean'];
+};
+
+export type CompanyResolvers<ContextType = GraphQLContext, ParentType = ResolversParentTypes['Company']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  developed?: Resolver<Maybe<Array<Maybe<ResolversTypes['Game']>>>, ParentType, ContextType>;
+  published?: Resolver<Maybe<Array<Maybe<ResolversTypes['Game']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type GameResolvers<ContextType = GraphQLContext, ParentType = ResolversParentTypes['Game']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   platforms?: Resolver<Maybe<Array<Maybe<ResolversTypes['Platform']>>>, ParentType, ContextType>;
+  involved_companies?: Resolver<Maybe<Array<Maybe<ResolversTypes['Involved_Company']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type Involved_CompanyResolvers<ContextType = GraphQLContext, ParentType = ResolversParentTypes['Involved_Company']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  developer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  publisher?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  porting?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  supporting?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  company?: Resolver<Maybe<ResolversTypes['Company']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -155,10 +203,13 @@ export type PlatformResolvers<ContextType = GraphQLContext, ParentType = Resolve
 export type QueryResolvers<ContextType = GraphQLContext, ParentType = ResolversParentTypes['Query']> = {
   games?: Resolver<Maybe<Array<Maybe<ResolversTypes['Game']>>>, ParentType, ContextType>;
   game?: Resolver<Maybe<ResolversTypes['Game']>, ParentType, ContextType, RequireFields<QueryGameArgs, 'id'>>;
+  company?: Resolver<Maybe<ResolversTypes['Company']>, ParentType, ContextType, RequireFields<QueryCompanyArgs, 'id'>>;
 };
 
 export type Resolvers<ContextType = GraphQLContext> = {
+  Company?: CompanyResolvers<ContextType>;
   Game?: GameResolvers<ContextType>;
+  Involved_Company?: Involved_CompanyResolvers<ContextType>;
   Platform?: PlatformResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
 };
