@@ -14,6 +14,8 @@ export type Involved_CompanyModel = {
   id: number;
   developer: boolean;
   publisher: boolean;
+  porting: boolean;
+  supporting: boolean;
   company: number;
 };
 
